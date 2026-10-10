@@ -3,6 +3,8 @@ import { useAuthStore } from '../stores/auth'
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import DashboardView from '../views/DashboardView.vue'
+import ProductsView from '../views/ProductsView.vue'
+import ProductDetailView from '../views/ProductDetailView.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -10,6 +12,8 @@ const router = createRouter({
     { path: '/', name: 'home', component: HomeView },
     { path: '/login', name: 'login', component: LoginView },
     { path: '/app', name: 'app', component: DashboardView, meta: { requiresAuth: true } },
+    { path: '/produtos', name: 'products', component: ProductsView },
+    { path: '/produtos/:id', name: 'product-detail', component: ProductDetailView, props: true },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
 })

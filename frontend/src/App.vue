@@ -17,6 +17,9 @@ async function onLogout() {
       <RouterLink to="/" class="hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600">
         Início
       </RouterLink>
+      <RouterLink to="/produtos" class="hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600">
+        Produtos
+      </RouterLink>
       <RouterLink
         v-if="auth.isAuthenticated"
         to="/app"
