@@ -15,7 +15,7 @@ Legenda: `[x]` feito · `[ ]` pendente. Atualize conforme entrega.
 ## Frente 1 — Autenticação (`regras-de-negocio/autenticacao.md`)
 
 - [x] Base Passport (tabelas + client `chico-rei-app`)
-- [ ] `POST /api/login` · `POST /api/logout` · `GET /api/me`
+- [x] `POST /api/login` · `POST /api/logout` · `GET /api/me`
 - [ ] Só autenticado cria/edita/exclui; público só lista/visualiza
 
 ## Frente 2 — Produtos (`regras-de-negocio/produtos.md`, `logs.md`)

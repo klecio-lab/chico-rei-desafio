@@ -17,7 +17,7 @@ return response()->json(['message' => '...', 'data' => [...]], 200);
 | Método | Rota | Auth | Descrição |
 |---|---|---|---|
 | `POST` | `/api/login` | — | `{email, password}` → `{user, token, expires_at}` |
-| `POST` | `/api/logout` | `auth:api` | revoga token atual → `204` |
+| `POST` | `/api/logout` | `auth:api` | revoga token atual → `200` `{ "message" }` |
 | `GET` | `/api/me` | `auth:api` | usuário do token |
 | `GET` | `/api/products` | — | lista (`q category min_price max_price in_stock sort per_page`) |
 | `GET` | `/api/products/{id}` | — | detalhe + `logs` recentes |
