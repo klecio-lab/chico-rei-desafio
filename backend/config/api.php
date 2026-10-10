@@ -42,4 +42,19 @@ return [
 
     'throttle_login_max' => (int) env('THROTTLE_LOGIN_MAX', 10),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Paginação e rate limit da leitura pública
+    |--------------------------------------------------------------------------
+    |
+    | `per_page` default da listagem de produtos (o FormRequest limita 1–100).
+    | Leitura é pública e barata, mas tem bucket próprio (120/min por IP ou
+    | usuário logado) para preservar o banco em scraping agressivo.
+    |
+    */
+
+    'pagination_default' => (int) env('API_PAGINATION_DEFAULT', 15),
+
+    'throttle_read_max' => (int) env('THROTTLE_READ_MAX', 120),
+
 ];

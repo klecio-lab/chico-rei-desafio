@@ -21,8 +21,8 @@ Legenda: `[x]` feito · `[ ]` pendente. Atualize conforme entrega.
 ## Frente 2 — Produtos (`regras-de-negocio/produtos.md`, `logs.md`)
 
 - [ ] CRUD completo + campos do edital (`name description image price category stock`)
-- [ ] Listagem: `q` busca + filtros (categoria, preço, estoque) + `sort` + `per_page`
-- [ ] `GET /api/products/{id}` detalhe completo
+- [x] Listagem: `q` busca + filtros (categoria, preço, estoque) + `sort` + `per_page`
+- [x] `GET /api/products/{id}` detalhe completo
 - [ ] `product_logs` via Observer + Job async
 
 ## Frente 3 — Web (chat front)
@@ -31,7 +31,7 @@ Legenda: `[x]` feito · `[ ]` pendente. Atualize conforme entrega.
 
 ## Dados
 
-- [ ] Migrations + seeders (~20 produtos + usuário demo) no repo
+- [x] Migrations + seeders (~20 produtos + usuário demo) no repo
 
 ## Diferenciais (só após obrigatórios completos)
 

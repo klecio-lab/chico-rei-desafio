@@ -32,5 +32,11 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('login', function (Request $request) {
             return Limit::perMinute(config('api.throttle_login_max'))->by($request->ip());
         });
+
+        // Leitura pública do catálogo: bucket generoso por IP ou usuário logado.
+        RateLimiter::for('products-read', function (Request $request) {
+            return Limit::perMinute(config('api.throttle_read_max'))
+                ->by($request->user()?->id ?? $request->ip());
+        });
     }
 }

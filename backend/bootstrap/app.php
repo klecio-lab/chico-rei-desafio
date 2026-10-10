@@ -1,11 +1,14 @@
 <?php
 
+use App\Models\Product;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Middleware\Authenticate;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -30,5 +33,25 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             return null;
+        });
+
+        // 404 sempre JSON em PT-BR na API (não vazar existência, §4 do AGENTS.md).
+        // O Laravel converte ModelNotFoundException em NotFoundHttpException
+        // antes dos renders — por isso inspecionamos a exceção anterior.
+        $exceptions->render(function (NotFoundHttpException $exception, Request $request) {
+            if (! $request->is('api/*') && ! $request->expectsJson()) {
+                return null;
+            }
+
+            $previous = $exception->getPrevious();
+
+            $message = $previous instanceof ModelNotFoundException
+                ? match ($previous->getModel()) {
+                    Product::class => 'Produto não encontrado.',
+                    default => 'Recurso não encontrado.',
+                }
+            : 'Rota não encontrada.';
+
+            return response()->json(['message' => $message], 404);
         });
     })->create();
