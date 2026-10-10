@@ -6,7 +6,7 @@ defineProps({
 </script>
 
 <template>
-  <p v-if="messages.length" :id="errorId" role="alert" class="mt-1 text-sm text-red-600">
+  <p v-if="messages.length" :id="errorId" role="alert" class="mt-1 text-sm font-medium text-blood">
     {{ messages[0] }}
   </p>
 </template>

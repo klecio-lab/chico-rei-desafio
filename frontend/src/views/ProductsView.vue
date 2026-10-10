@@ -1,7 +1,8 @@
 <script setup>
 import { ref, watch } from 'vue'
-import { useRoute, useRouter, RouterLink } from 'vue-router'
-import { listProducts, formatPrice, CATEGORIES, SORT_OPTIONS } from '../lib/products'
+import { useRoute, useRouter } from 'vue-router'
+import { listProducts, CATEGORIES, SORT_OPTIONS } from '../lib/products'
+import ProductCard from '../components/ProductCard.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -21,6 +22,8 @@ const products = ref([])
 const meta = ref({ current_page: 1, last_page: 1, per_page: PER_PAGE, total: 0 })
 const loading = ref(false)
 const error = ref('')
+
+const inputClass = 'w-full rounded-lg border-2 border-ink bg-paper px-3 py-2 text-base focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-flame'
 
 function filtersFromQuery(query) {
   return {
@@ -108,51 +111,42 @@ watch(
 
 <template>
   <section class="mx-auto w-full max-w-6xl px-4 py-10">
-    <h1>Produtos</h1>
+    <p class="font-display text-lg text-flame">Catálogo</p>
+    <h1 class="mt-2">Produtos</h1>
 
-    <form @submit.prevent="apply" class="mt-6 grid grid-cols-1 gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4 sm:grid-cols-2 lg:grid-cols-4">
+    <form @submit.prevent="apply" class="mt-6 grid grid-cols-1 gap-3 rounded-xl border-2 border-ink bg-cream p-4 sm:grid-cols-2 lg:grid-cols-4">
       <div class="lg:col-span-2">
-        <label for="q" class="mb-1 block text-sm font-medium">Buscar</label>
+        <label for="q" class="mb-1 block text-sm font-bold">Buscar</label>
         <input
           id="q"
           v-model="filters.q"
           type="search"
           name="q"
           autocomplete="off"
-          placeholder="Nome do produto…"
-          class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-violet-600"
+          placeholder="O que você procura?…"
+          :class="inputClass"
         />
       </div>
 
       <div>
-        <label for="category" class="mb-1 block text-sm font-medium">Categoria</label>
-        <select
-          id="category"
-          v-model="filters.category"
-          name="category"
-          class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-violet-600"
-        >
+        <label for="category" class="mb-1 block text-sm font-bold">Categoria</label>
+        <select id="category" v-model="filters.category" name="category" :class="inputClass">
           <option value="">Todas</option>
           <option v-for="c in CATEGORIES" :key="c" :value="c">{{ c }}</option>
         </select>
       </div>
 
       <div>
-        <label for="in_stock" class="mb-1 block text-sm font-medium">Estoque</label>
-        <select
-          id="in_stock"
-          v-model="filters.in_stock"
-          name="in_stock"
-          class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-violet-600"
-        >
-          <option value="">Todos</option>
+        <label for="in_stock" class="mb-1 block text-sm font-bold">Disponibilidade</label>
+        <select id="in_stock" v-model="filters.in_stock" name="in_stock" :class="inputClass">
+          <option value="">Tudo</option>
           <option value="1">Em estoque</option>
           <option value="0">Esgotados</option>
         </select>
       </div>
 
       <div>
-        <label for="min_price" class="mb-1 block text-sm font-medium">Preço mín. (R$)</label>
+        <label for="min_price" class="mb-1 block text-sm font-bold">Preço mín. (R$)</label>
         <input
           id="min_price"
           v-model="filters.min_price"
@@ -162,12 +156,12 @@ watch(
           min="0"
           step="0.01"
           placeholder="0,00…"
-          class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-violet-600"
+          :class="inputClass"
         />
       </div>
 
       <div>
-        <label for="max_price" class="mb-1 block text-sm font-medium">Preço máx. (R$)</label>
+        <label for="max_price" class="mb-1 block text-sm font-bold">Preço máx. (R$)</label>
         <input
           id="max_price"
           v-model="filters.max_price"
@@ -177,18 +171,13 @@ watch(
           min="0"
           step="0.01"
           placeholder="999,99…"
-          class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-violet-600"
+          :class="inputClass"
         />
       </div>
 
       <div>
-        <label for="sort" class="mb-1 block text-sm font-medium">Ordenar</label>
-        <select
-          id="sort"
-          v-model="filters.sort"
-          name="sort"
-          class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-violet-600"
-        >
+        <label for="sort" class="mb-1 block text-sm font-bold">Ordenar</label>
+        <select id="sort" v-model="filters.sort" name="sort" :class="inputClass">
           <option v-for="o in SORT_OPTIONS" :key="o.value" :value="o.value">{{ o.label }}</option>
         </select>
       </div>
@@ -197,70 +186,49 @@ watch(
         <button
           type="submit"
           :disabled="loading"
-          class="inline-flex w-full items-center justify-center rounded-md bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 disabled:cursor-not-allowed disabled:opacity-60"
+          class="inline-flex w-full items-center justify-center rounded-lg border-2 border-ink bg-ink px-4 py-2 text-base font-bold text-paper transition-colors hover:border-flame hover:bg-flame hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-flame disabled:cursor-not-allowed disabled:opacity-60"
         >
           {{ loading ? 'Buscando…' : 'Buscar' }}
         </button>
       </div>
     </form>
 
-    <p v-if="error" role="alert" class="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+    <p v-if="error" role="alert" class="mt-4 rounded-lg border-2 border-blood bg-paper px-4 py-2 text-sm font-medium text-blood">
       {{ error }}
     </p>
 
-    <p v-else-if="loading" class="mt-8 text-center" role="status">Carregando produtos…</p>
+    <p v-else-if="loading" class="mt-8" role="status">Carregando produtos…</p>
 
     <template v-else>
-      <p class="mt-6 text-sm text-gray-600" role="status">
-        {{ meta.total }} {{ meta.total === 1 ? 'produto' : 'produtos' }} · página {{ meta.current_page }} de {{ meta.last_page }}
+      <p class="mt-6 font-semibold" role="status">
+        {{ meta.total }} {{ meta.total === 1 ? 'peça' : 'peças' }}
+        <span class="font-normal text-ink-soft">· página {{ meta.current_page }} de {{ meta.last_page }}</span>
       </p>
 
-      <p v-if="!products.length" class="mt-8 rounded-md border border-dashed border-gray-300 px-4 py-10 text-center">
-        Nenhum produto encontrado. Ajuste os filtros e tente de novo.
-      </p>
+      <div v-if="!products.length" class="mt-4 rounded-xl border-2 border-dashed border-line px-4 py-12 text-center">
+        <p class="font-display text-xl">Nada por aqui.</p>
+        <p class="mx-auto mt-2 text-ink-soft">Ajuste os filtros para ver mais peças do varal.</p>
+      </div>
 
-      <ul v-else class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <li v-for="p in products" :key="p.id" class="overflow-hidden rounded-lg border border-gray-200 bg-white">
-          <RouterLink :to="{ name: 'product-detail', params: { id: p.id } }" class="block focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600">
-            <img
-              :src="p.image"
-              :alt="p.name"
-              width="600"
-              height="600"
-              loading="lazy"
-              class="aspect-square w-full object-cover"
-            />
-          </RouterLink>
-          <div class="flex min-w-0 flex-col gap-1 p-4">
-            <p class="text-xs uppercase tracking-wide text-gray-500">{{ p.category }}</p>
-            <RouterLink
-              :to="{ name: 'product-detail', params: { id: p.id } }"
-              class="truncate font-semibold hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600"
-            >
-              {{ p.name }}
-            </RouterLink>
-            <p class="text-lg font-bold tabular-nums">{{ formatPrice(p.price) }}</p>
-            <p v-if="Number(p.stock) > 0" class="text-sm text-green-700">{{ p.stock }} em estoque</p>
-            <p v-else class="text-sm font-medium text-red-600">Esgotado</p>
-          </div>
-        </li>
-      </ul>
+      <div v-else class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <ProductCard v-for="p in products" :key="p.id" :product="p" />
+      </div>
 
-      <nav v-if="meta.last_page > 1" class="mt-8 flex items-center justify-center gap-3" aria-label="Paginação">
+      <nav v-if="meta.last_page > 1" class="mt-10 flex items-center justify-center gap-4" aria-label="Paginação">
         <button
           type="button"
           :disabled="filters.page <= 1 || loading"
           @click="gotoPage(filters.page - 1)"
-          class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 disabled:cursor-not-allowed disabled:opacity-50"
+          class="rounded-lg border-2 border-ink px-4 py-2 font-bold hover:bg-cream focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-flame disabled:cursor-not-allowed disabled:opacity-40"
         >
           ← Anterior
         </button>
-        <span class="text-sm tabular-nums" aria-current="page">Página {{ meta.current_page }} de {{ meta.last_page }}</span>
+        <span class="font-semibold tabular-nums" aria-current="page">{{ meta.current_page }} / {{ meta.last_page }}</span>
         <button
           type="button"
           :disabled="filters.page >= meta.last_page || loading"
           @click="gotoPage(filters.page + 1)"
-          class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600 disabled:cursor-not-allowed disabled:opacity-50"
+          class="rounded-lg border-2 border-ink px-4 py-2 font-bold hover:bg-cream focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-flame disabled:cursor-not-allowed disabled:opacity-40"
         >
           Próxima →
         </button>
