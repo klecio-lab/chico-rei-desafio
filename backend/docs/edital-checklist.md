@@ -10,7 +10,7 @@ Legenda: `[x]` feito · `[ ]` pendente. Atualize conforme entrega.
 - [x] Erros consistentes (422/401/403/404 em PT-BR)
 - [ ] Front Vue com componentização (chat front)
 - [x] Git com histórico (`27a39b3` scaffold; continuar `feat:`/`docs:` em PT-BR)
-- [ ] README com os 6 itens (rascunho na raiz; expandir na entrega)
+- [x] README com os 6 itens (raiz; verificado em máquina limpa)
 
 ## Frente 1 — Autenticação (`regras-de-negocio/autenticacao.md`)
 
