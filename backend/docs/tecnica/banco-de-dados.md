@@ -25,4 +25,4 @@ Tabelas do `install:api --passport` (clients/tokens com UUID). Client pessoal `c
 
 ## Seeds
 
-`ProductSeeder` (~20 produtos variando categoria/preço/estoque, incluindo zerados para testar `in_stock=false`) + `UserSeeder` demo (`demo@chicorei.test` / `password`). `migrate --seed` em máquina limpa.
+`ProductSeeder` (~20 produtos com a cara da loja: camisetas nos temas reais do site — musica, literatura, filmes, geek, brasilidade, series, games, humor — mais moletons e básicos; preços BRL realistas; estoques variados incluindo zerados para testar `in_stock=false`; imagens via placeholder estável) + `UserSeeder` demo (`demo@chicorei.test` / `password`). `migrate --seed` em máquina limpa.
