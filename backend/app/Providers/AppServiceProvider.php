@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Product;
+use App\Observers\ProductObserver;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -23,6 +25,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Catálogo coletivo: eventos do model viram logs async (BDR-005).
+        Product::observe(ProductObserver::class);
+
         // Expiração curta do personal token de login (BDR-001, valor em config/api.php).
         Passport::personalAccessTokensExpireIn(
             now()->addDays(config('api.token_expires_days'))
@@ -36,6 +41,12 @@ class AppServiceProvider extends ServiceProvider
         // Leitura pública do catálogo: bucket generoso por IP ou usuário logado.
         RateLimiter::for('products-read', function (Request $request) {
             return Limit::perMinute(config('api.throttle_read_max'))
+                ->by($request->user()?->id ?? $request->ip());
+        });
+
+        // Escrita protegida: só chega aqui com auth:api, então sempre há usuário.
+        RateLimiter::for('products-write', function (Request $request) {
+            return Limit::perMinute(config('api.throttle_write_max'))
                 ->by($request->user()?->id ?? $request->ip());
         });
     }

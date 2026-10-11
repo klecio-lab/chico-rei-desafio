@@ -57,4 +57,16 @@ return [
 
     'throttle_read_max' => (int) env('THROTTLE_READ_MAX', 120),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Rate limit da escrita protegida (CUD)
+    |--------------------------------------------------------------------------
+    |
+    | Criar/editar/excluir exige token e tem bucket próprio por usuário logado
+    | (30/min). Generoso para uso humano, suficiente para conter abuso.
+    |
+    */
+
+    'throttle_write_max' => (int) env('THROTTLE_WRITE_MAX', 30),
+
 ];

@@ -30,3 +30,8 @@ Rate limit: `login` 10/min por IP; CUD 30/min por usuário; leitura 120/min por 
 Notas do catálogo: `price` serializa **string** (decimal do MySQL) — o front aplica
 `Number()`; `sort` aceita `name|price|stock|created_at` com prefixo `-` (default
 `-created_at`); `per_page` default 15 (1–100); `in_stock=false` = zerados.
+
+Corpo de escrita (`POST`/`PUT` total): `name` (obrigatório, min 3), `price`
+(obrigatório, ≥ 0), `category` (obrigatória), `stock` (obrigatório, inteiro ≥ 0),
+`description` (opcional), `image` (opcional, URL ≤ 2048). Falha → `422` com
+`errors.*` em PT-BR por campo.

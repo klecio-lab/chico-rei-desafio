@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Product;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 class ProductService
 {
@@ -48,5 +49,30 @@ class ProductService
         $query->orderBy(ltrim($sort, '-'), $direction);
 
         return $query->paginate($filters['per_page'] ?? config('api.pagination_default'));
+    }
+
+    /**
+     * @param  array<string, mixed>  $data  Dado já validado do StoreProductRequest.
+     */
+    public function create(array $data): Product
+    {
+        return DB::transaction(fn () => Product::create($data));
+    }
+
+    /**
+     * @param  array<string, mixed>  $data  Dado já validado do UpdateProductRequest.
+     */
+    public function update(Product $product, array $data): Product
+    {
+        return DB::transaction(function () use ($product, $data): Product {
+            $product->update($data);
+
+            return $product->refresh();
+        });
+    }
+
+    public function delete(Product $product): void
+    {
+        DB::transaction(fn () => $product->delete());
     }
 }

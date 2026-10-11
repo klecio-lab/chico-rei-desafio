@@ -34,7 +34,8 @@ class ProductTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonPath('data.name', 'Camiseta Teste')
             ->assertJsonStructure(['data' => ['id', 'name', 'price', 'logs']])
-            ->assertJsonPath('data.logs', []);
+            ->assertJsonCount(1, 'data.logs')
+            ->assertJsonPath('data.logs.0.action', 'created');
     }
 
     public function test_show_inexistente_retorna_404_ptbr(): void
@@ -116,5 +117,90 @@ class ProductTest extends TestCase
             'O preço máximo deve ser maior ou igual ao preço mínimo.',
             $response->json('errors.max_price.0')
         );
+    }
+
+    public function test_escrita_sem_token_retorna_401(): void
+    {
+        $product = Product::factory()->create();
+
+        $this->postJson('/api/products', [])->assertStatus(401)->assertJsonPath('message', 'Não autenticado.');
+        $this->putJson("/api/products/{$product->id}", [])->assertStatus(401);
+        $this->deleteJson("/api/products/{$product->id}")->assertStatus(401);
+    }
+
+    public function test_store_invalido_retorna_422(): void
+    {
+        $this->authUser();
+
+        $response = $this->postJson('/api/products', []);
+
+        $response->assertStatus(422)->assertJsonValidationErrors(['name', 'price', 'category', 'stock']);
+
+        $response = $this->postJson('/api/products', [
+            'name' => 'AB',
+            'price' => -5,
+            'category' => 'camisetas',
+            'stock' => 1,
+            'image' => 'nao-e-url',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['name', 'price', 'image'])
+            ->assertJsonPath('errors.name.0', 'O nome deve ter ao menos 3 caracteres.');
+    }
+
+    public function test_update_invalido_retorna_422(): void
+    {
+        $this->authUser();
+        $product = Product::factory()->create();
+
+        $this->putJson("/api/products/{$product->id}", [
+            'name' => 'AB',
+            'price' => 10,
+            'category' => 'camisetas',
+            'stock' => 1,
+        ])->assertStatus(422)->assertJsonValidationErrors(['name']);
+    }
+
+    public function test_crud_feliz(): void
+    {
+        $this->authUser();
+
+        $id = $this->postJson('/api/products', [
+            'name' => 'Camiseta Nova',
+            'description' => 'Descrição.',
+            'image' => 'https://placehold.co/600x600?text=nova',
+            'price' => 59.90,
+            'category' => 'camisetas',
+            'stock' => 10,
+        ])->assertStatus(201)
+            ->assertJsonPath('message', 'Produto criado com sucesso.')
+            ->assertJsonPath('data.name', 'Camiseta Nova')
+            ->json('data.id');
+
+        $this->putJson("/api/products/{$id}", [
+            'name' => 'Camiseta Nova',
+            'description' => 'Descrição atualizada.',
+            'image' => 'https://placehold.co/600x600?text=nova',
+            'price' => 69.90,
+            'category' => 'camisetas',
+            'stock' => 5,
+        ])->assertStatus(200)
+            ->assertJsonPath('message', 'Produto atualizado com sucesso.')
+            ->assertJsonPath('data.price', '69.90');
+
+        $this->deleteJson("/api/products/{$id}")->assertStatus(204)->assertNoContent();
+
+        $this->getJson("/api/products/{$id}")->assertStatus(404);
+    }
+
+    public function test_update_e_destroy_inexistente_retornam_404(): void
+    {
+        $this->authUser();
+
+        $payload = ['name' => 'Qualquer', 'price' => 10, 'category' => 'canecas', 'stock' => 1];
+
+        $this->putJson('/api/products/999999', $payload)->assertStatus(404);
+        $this->deleteJson('/api/products/999999')->assertStatus(404);
     }
 }
