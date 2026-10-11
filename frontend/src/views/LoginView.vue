@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import AppButton from '../components/AppButton.vue'
 import FieldError from '../components/FieldError.vue'
+import ErrorState from '../components/ErrorState.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -38,13 +39,7 @@ async function onSubmit() {
     <h1 class="mt-2">Entrar</h1>
 
     <div class="mt-6 rounded-xl border-2 border-ink bg-paper p-6 shadow-[6px_6px_0_var(--color-ink)]">
-      <p
-        v-if="generalError"
-        role="alert"
-        class="rounded-lg border-2 border-blood bg-paper px-4 py-2 text-sm font-medium text-blood"
-      >
-        {{ generalError }}
-      </p>
+      <ErrorState v-if="generalError" :message="generalError" />
 
       <form @submit.prevent="onSubmit" novalidate class="mt-4 flex flex-col gap-4">
         <div>

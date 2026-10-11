@@ -3,8 +3,10 @@ import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { listProducts } from '../lib/products'
 import ProductCard from '../components/ProductCard.vue'
+import LoadingState from '../components/LoadingState.vue'
 
 const highlights = ref([])
+const loadingHighlights = ref(true)
 
 onMounted(async () => {
   try {
@@ -12,6 +14,8 @@ onMounted(async () => {
     highlights.value = body.data ?? []
   } catch {
     highlights.value = []
+  } finally {
+    loadingHighlights.value = false
   }
 })
 </script>
@@ -56,7 +60,8 @@ onMounted(async () => {
           Ver catálogo completo
         </RouterLink>
       </div>
-      <div v-if="highlights.length" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <LoadingState v-if="loadingHighlights" message="Buscando novidades…" class="mt-6" />
+      <div v-else-if="highlights.length" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <ProductCard v-for="p in highlights" :key="p.id" :product="p" />
       </div>
     </section>

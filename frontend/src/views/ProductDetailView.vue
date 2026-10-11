@@ -2,6 +2,9 @@
 import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { getProduct, formatPrice, formatDateTime } from '../lib/products'
+import LoadingState from '../components/LoadingState.vue'
+import EmptyState from '../components/EmptyState.vue'
+import ErrorState from '../components/ErrorState.vue'
 
 const props = defineProps({ id: { type: [String, Number], required: true } })
 
@@ -67,16 +70,25 @@ onMounted(async () => {
       ← Voltar ao catálogo
     </RouterLink>
 
-    <p v-if="loading" class="mt-8" role="status">Carregando produto…</p>
+    <LoadingState v-if="loading" message="Carregando produto…" class="mt-8" />
 
-    <div v-else-if="notFound" role="alert" class="mt-8 max-w-xl rounded-xl border-2 border-ink bg-cream p-8">
-      <p class="font-display text-2xl">Peça não encontrada.</p>
-      <p class="mt-2 text-ink-soft">Ela pode ter saído do ar. Que tal olhar o resto do varal?</p>
-    </div>
+    <EmptyState
+      v-else-if="notFound"
+      title="Peça não encontrada."
+      message="Ela pode ter saído do ar. Que tal olhar o resto do varal?"
+      class="mt-8 max-w-xl"
+    >
+      <template #action>
+        <RouterLink
+          :to="{ name: 'products' }"
+          class="inline-flex items-center justify-center rounded-lg border-2 border-ink bg-ink px-5 py-2.5 font-bold text-paper transition-colors hover:border-flame hover:bg-flame hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-flame"
+        >
+          Ver catálogo
+        </RouterLink>
+      </template>
+    </EmptyState>
 
-    <p v-else-if="error" role="alert" class="mt-8 rounded-lg border-2 border-blood bg-paper px-4 py-2 text-sm font-medium text-blood">
-      {{ error }}
-    </p>
+    <ErrorState v-else-if="error" :message="error" class="mt-8 max-w-xl" />
 
     <template v-else-if="product">
       <div class="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-2">

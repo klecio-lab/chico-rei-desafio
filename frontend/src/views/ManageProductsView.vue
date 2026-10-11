@@ -3,6 +3,9 @@ import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { listProducts, deleteProduct, formatPrice } from '../lib/products'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
+import LoadingState from '../components/LoadingState.vue'
+import EmptyState from '../components/EmptyState.vue'
+import ErrorState from '../components/ErrorState.vue'
 
 const products = ref([])
 const loading = ref(true)
@@ -68,16 +71,27 @@ onMounted(fetchAll)
       {{ notice }}
     </p>
 
-    <p v-if="error" role="alert" class="mt-4 rounded-lg border-2 border-blood bg-paper px-4 py-2 text-sm font-medium text-blood">
-      {{ error }}
-    </p>
-
-    <p v-if="loading" class="mt-8" role="status">Carregando produtos…</p>
-
-    <div v-else-if="!products.length" class="mt-6 rounded-xl border-2 border-dashed border-line px-4 py-12 text-center">
-      <p class="font-display text-xl">Varal vazio.</p>
-      <p class="mx-auto mt-2 text-ink-soft">Cadastre a primeira peça para começar.</p>
+    <div class="mt-4 flex flex-col gap-3">
+      <ErrorState v-if="error" :message="error" retryable @retry="fetchAll" />
     </div>
+
+    <LoadingState v-if="loading" message="Carregando produtos…" class="mt-8" />
+
+    <EmptyState
+      v-else-if="!products.length"
+      title="Varal vazio."
+      message="Cadastre a primeira peça para começar."
+      class="mt-6"
+    >
+      <template #action>
+        <RouterLink
+          :to="{ name: 'product-new' }"
+          class="inline-flex items-center justify-center rounded-lg border-2 border-ink bg-ink px-5 py-2.5 font-bold text-paper transition-colors hover:border-flame hover:bg-flame hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-flame"
+        >
+          + Novo produto
+        </RouterLink>
+      </template>
+    </EmptyState>
 
     <div v-else class="mt-6 overflow-x-auto rounded-xl border-2 border-ink">
       <table class="w-full min-w-[640px] border-collapse bg-paper text-left text-sm">

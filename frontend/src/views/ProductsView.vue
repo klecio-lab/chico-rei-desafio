@@ -3,6 +3,9 @@ import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { listProducts, CATEGORIES, SORT_OPTIONS } from '../lib/products'
 import ProductCard from '../components/ProductCard.vue'
+import LoadingState from '../components/LoadingState.vue'
+import EmptyState from '../components/EmptyState.vue'
+import ErrorState from '../components/ErrorState.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -193,11 +196,9 @@ watch(
       </div>
     </form>
 
-    <p v-if="error" role="alert" class="mt-4 rounded-lg border-2 border-blood bg-paper px-4 py-2 text-sm font-medium text-blood">
-      {{ error }}
-    </p>
+    <ErrorState v-if="error" :message="error" retryable @retry="fetchProducts" class="mt-4" />
 
-    <p v-else-if="loading" class="mt-8" role="status">Carregando produtos…</p>
+    <LoadingState v-else-if="loading" message="Carregando produtos…" class="mt-8" />
 
     <template v-else>
       <p class="mt-6 font-semibold" role="status">
@@ -205,10 +206,12 @@ watch(
         <span class="font-normal text-ink-soft">· página {{ meta.current_page }} de {{ meta.last_page }}</span>
       </p>
 
-      <div v-if="!products.length" class="mt-4 rounded-xl border-2 border-dashed border-line px-4 py-12 text-center">
-        <p class="font-display text-xl">Nada por aqui.</p>
-        <p class="mx-auto mt-2 text-ink-soft">Ajuste os filtros para ver mais peças do varal.</p>
-      </div>
+      <EmptyState
+        v-if="!products.length"
+        title="Nada por aqui."
+        message="Ajuste os filtros para ver mais peças do varal."
+        class="mt-4"
+      />
 
       <div v-else class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         <ProductCard v-for="p in products" :key="p.id" :product="p" />

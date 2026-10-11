@@ -4,6 +4,8 @@ import { useRoute, useRouter, RouterLink } from 'vue-router'
 import { getProduct, createProduct, updateProduct, CATEGORIES, normalizeDecimal } from '../lib/products'
 import AppButton from '../components/AppButton.vue'
 import FieldError from '../components/FieldError.vue'
+import LoadingState from '../components/LoadingState.vue'
+import ErrorState from '../components/ErrorState.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -90,7 +92,7 @@ async function onSubmit() {
     <p class="font-display text-lg text-flame">Minha área</p>
     <h1 class="mt-2">{{ isEdit ? 'Editar produto' : 'Novo produto' }}</h1>
 
-    <p v-if="loadingPage" class="mt-8" role="status">Carregando produto…</p>
+    <LoadingState v-if="loadingPage" message="Carregando produto…" class="mt-8" />
 
     <div v-else-if="notFound" role="alert" class="mt-8 rounded-xl border-2 border-ink bg-cream p-8">
       <p class="font-display text-2xl">Peça não encontrada.</p>
@@ -98,13 +100,7 @@ async function onSubmit() {
     </div>
 
     <div v-else class="mt-6 rounded-xl border-2 border-ink bg-paper p-6 shadow-[6px_6px_0_var(--color-ink)]">
-      <p
-        v-if="generalError"
-        role="alert"
-        class="rounded-lg border-2 border-blood bg-paper px-4 py-2 text-sm font-medium text-blood"
-      >
-        {{ generalError }}
-      </p>
+      <ErrorState v-if="generalError" :message="generalError" />
 
       <form @submit.prevent="onSubmit" novalidate class="mt-4 flex flex-col gap-4">
         <div>
