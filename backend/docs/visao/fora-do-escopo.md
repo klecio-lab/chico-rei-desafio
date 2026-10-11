@@ -1,9 +1,15 @@
 # Fora do escopo (com mais tempo)
 
-Base do **item 6 do README**. Nada abaixo é obrigatório; entra só se tudo do `escopo.md` estiver pronto.
+Base do **item 6 do README**. Fase 1 (entrega 100%) cumprida; abaixo o que virou **Fase 2** e o que segue fora.
 
-- Importação/scraping (BDR-007) — faria `products:import` idempotente.
-- Upload real de imagem (BDR-006) — `storage/` público + validação de arquivo.
-- Sentry e Elasticsearch — overkill para CRUD de 3 dias; log + `LIKE` com índice bastam.
-- API Resources/DTOs, scopes Passport por recurso, refresh-token no front, paginação cursor.
-- CI de testes no push (diferencial barato se sobrar tempo: `artisan test` no GitHub Actions).
+## Virou Fase 2 (BDRs 009–013, prioridade P1→P3)
+
+- Importação/scraping → BDR-009 (P1)
+- Upload real de imagem → BDR-010 (P2)
+- Sentry → BDR-011 (P2)
+- CI no push → BDR-013 (P1)
+- Elasticsearch → BDR-012 (P3, condicional: só se 009/010/011 verdes até seg)
+
+## Segue fora (BDR-014)
+
+- API Resources/DTOs, scopes Passport por recurso, refresh-token no front, paginação cursor: risco sem nota (envelope já padronizado).
