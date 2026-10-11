@@ -23,12 +23,18 @@ contrato congelado em `backend/docs/tecnica/api.md`.
 
 | Camada | Stack |
 |---|---|
-| Back-end | Laravel 13 (PHP 8.3) + MySQL 8.4 via Sail/Docker + Passport (OAuth2) + PHPUnit |
-| Front-end | Vue 3 + Vite + Vue Router + Pinia + Axios + Tailwind CSS v4 |
+| Back-end | Laravel 13.35 (PHP 8.5) + MySQL 8.4 via Sail/Docker + Passport (OAuth2) + PHPUnit |
+| Front-end | Vue 3.5 + Vite 8 (Node 22) + Vue Router + Pinia + Axios + Tailwind CSS v4 |
 
 ## 3. Como rodar
 
 Pré-requisitos: Docker + portas livres (`8006` API, `5174` front, `3307` MySQL).
+
+| Variável | Onde (ver `.env.example`) | Valor local |
+|---|---|---|
+| `APP_PORT` / `VITE_PORT` / `FORWARD_DB_PORT` | `backend/.env` | `8006` / `5174` / `3307` |
+| `VITE_API_URL` | `frontend/.env` | `http://localhost:8006` |
+| chaves Passport | geradas via `passport:keys` (fora do git) | — |
 
 ```bash
 # Back-end (a partir de backend/)
@@ -93,5 +99,4 @@ Rastro completo: `backend/docs/decisoes/` (BDR-001 a BDR-008) + regras em
 
 ## Status
 
-Back-end completo (8/8 BDRs aplicadas, suite verde). Front-end: auth + catálogo +
-gestão prontos; polimento (loading/vazio/erro/responsivo) na fatia 4.
+Entrega completa: 4 fatias fechadas nas duas pontas, 8/8 BDRs aplicadas, suite com 31 testes verdes, verificado em máquina limpa. Declarado como não-feito: importação externa, Sentry/Elasticsearch (ver `backend/docs/visao/fora-do-escopo.md`).
