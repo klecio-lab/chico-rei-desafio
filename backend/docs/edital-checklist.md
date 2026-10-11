@@ -8,7 +8,7 @@ Legenda: `[x]` feito · `[ ]` pendente. Atualize conforme entrega.
 - [x] FormRequests em toda entrada
 - [x] Respostas padronizadas (`tecnica/api.md`)
 - [x] Erros consistentes (422/401/403/404 em PT-BR)
-- [ ] Front Vue com componentização (chat front)
+- [x] Front Vue com componentização (fatia 4: Loading/Empty/Error + AppButton/FieldError/ConfirmDialog/ProductCard)
 - [x] Git com histórico (`27a39b3` scaffold; continuar `feat:`/`docs:` em PT-BR)
 - [x] README com os 6 itens (raiz; verificado em máquina limpa)
 
@@ -27,7 +27,7 @@ Legenda: `[x]` feito · `[ ]` pendente. Atualize conforme entrega.
 
 ## Frente 3 — Web (chat front)
 
-- [ ] Login · listagem com filtros/busca/paginação/ordenação · detalhe · CUD protegido · componentes
+- [x] Login · listagem com filtros/busca/paginação/ordenação · detalhe · CUD protegido · componentes
 
 ## Dados
 
