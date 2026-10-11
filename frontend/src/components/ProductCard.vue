@@ -13,6 +13,7 @@ defineProps({ product: { type: Object, required: true } })
       :aria-label="`Ver ${product.name}`"
     >
       <img
+        v-if="product.image"
         :src="product.image"
         :alt="product.name"
         width="600"
@@ -20,6 +21,13 @@ defineProps({ product: { type: Object, required: true } })
         loading="lazy"
         class="aspect-square w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
       />
+      <div
+        v-else
+        aria-hidden="true"
+        class="flex aspect-square w-full items-center justify-center bg-cream font-display text-7xl text-line"
+      >
+        {{ (product.name ?? '?').charAt(0).toUpperCase() }}
+      </div>
     </RouterLink>
     <div class="flex min-w-0 flex-col gap-1.5 p-4">
       <p class="w-fit rounded-full bg-cream px-2.5 py-0.5 text-xs font-semibold">{{ product.category }}</p>

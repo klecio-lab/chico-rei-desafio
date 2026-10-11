@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, RouterLink } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import AppButton from '../components/AppButton.vue'
 
@@ -25,7 +25,13 @@ async function onLogout() {
     <p class="mt-4">
       Logado como <strong>{{ auth.user?.name }} ({{ auth.user?.email }})</strong>
     </p>
-    <div class="mt-8 max-w-xs">
+    <div class="mt-6 flex max-w-xs flex-col gap-3">
+      <RouterLink
+        :to="{ name: 'manage-products' }"
+        class="inline-flex items-center justify-center rounded-lg border-2 border-ink bg-ink px-5 py-2.5 font-bold text-paper transition-colors hover:border-flame hover:bg-flame hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-flame"
+      >
+        Gerenciar produtos
+      </RouterLink>
       <AppButton type="button" @click="onLogout">Sair</AppButton>
     </div>
   </section>
