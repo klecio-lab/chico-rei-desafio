@@ -5,11 +5,11 @@
   --font-display: "Archivo Black", "Archivo", system-ui, sans-serif;
   --font-sans: "Archivo", system-ui, sans-serif;
 
-  --color-paper: #faf4e8;
-  --color-cream: #f3ead6;
-  --color-ink: #1a1410;
-  --color-ink-soft: #4a4238;
-  --color-line: #ddd0b8;
+  --color-paper: #f7f6f3;
+  --color-cream: #edebe5;
+  --color-ink: #1b1a18;
+  --color-ink-soft: #5d5850;
+  --color-line: #d8d3c8;
   --color-flame: #e14e0f;
   --color-flame-deep: #b23a06;
   --color-marigold: #f2a007;
@@ -19,11 +19,11 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-paper: #161009;
-    --color-cream: #221a10;
-    --color-ink: #f3ead8;
-    --color-ink-soft: #b9ac93;
-    --color-line: #3a2f20;
+    --color-paper: #141416;
+    --color-cream: #202024;
+    --color-ink: #f2efe9;
+    --color-ink-soft: #b3aca1;
+    --color-line: #34343c;
     --color-flame: #ff6a2b;
     --color-flame-deep: #ff6a2b;
     --color-marigold: #f2a007;

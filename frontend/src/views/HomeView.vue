@@ -1,9 +1,12 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
 import { listProducts } from '../lib/products'
 import ProductCard from '../components/ProductCard.vue'
 import LoadingState from '../components/LoadingState.vue'
+
+const auth = useAuthStore()
 
 const highlights = ref([])
 const loadingHighlights = ref(true)
@@ -36,10 +39,18 @@ onMounted(async () => {
           Ver produtos
         </RouterLink>
         <RouterLink
+          v-if="!auth.isAuthenticated"
           to="/login"
           class="inline-flex items-center justify-center rounded-lg border-2 border-ink bg-transparent px-6 py-3 text-base font-bold transition-colors hover:bg-cream focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-flame"
         >
           Entrar na conta
+        </RouterLink>
+        <RouterLink
+          v-else
+          to="/app/produtos"
+          class="inline-flex items-center justify-center rounded-lg border-2 border-ink bg-transparent px-6 py-3 text-base font-bold transition-colors hover:bg-cream focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-flame"
+        >
+          Gerenciar produtos
         </RouterLink>
       </div>
     </section>
