@@ -47,8 +47,43 @@ class ProductLogTest extends TestCase
 
         $this->assertSame($user->id, $log->user_id);
         $this->assertSame('50.00', (string) $log->changes['before']['price']);
-        $this->assertSame(75, $log->changes['after']['price']);
+        $this->assertSame('75.00', $log->changes['after']['price']);
         $this->assertArrayNotHasKey('stock', $log->changes['after']);
+    }
+
+    public function test_log_grava_price_sempre_com_duas_casas(): void
+    {
+        $this->authUser();
+
+        // 49.9 em float contamina o payload cru (ruído binário no JSON) —
+        // regressão do ruído visto no E2E ("49.900001525878906").
+        $id = $this->postJson('/api/products', [
+            'name' => 'Camiseta Preço',
+            'price' => 49.9,
+            'category' => 'camisetas',
+            'stock' => 10,
+        ])->assertStatus(201)->json('data.id');
+
+        $this->assertSame(
+            '49.90',
+            ProductLog::where('product_id', $id)->where('action', 'created')->sole()->changes['after']['price']
+        );
+
+        $product = Product::findOrFail($id);
+
+        $this->putJson("/api/products/{$id}", [
+            'name' => $product->name,
+            'description' => $product->description,
+            'image' => $product->image,
+            'price' => 59.9,
+            'category' => $product->category,
+            'stock' => $product->stock,
+        ])->assertStatus(200);
+
+        $log = ProductLog::where('product_id', $id)->where('action', 'updated')->sole();
+
+        $this->assertSame('49.90', $log->changes['before']['price']);
+        $this->assertSame('59.90', $log->changes['after']['price']);
     }
 
     public function test_excluir_produto_mantem_log_com_product_id_null(): void

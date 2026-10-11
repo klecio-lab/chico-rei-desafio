@@ -17,7 +17,7 @@ class ProductObserver
             $product->id,
             'created',
             auth()->id(),
-            ['after' => $product->getAttributes()],
+            ['after' => self::normalizeMoney($product->getAttributes())],
         );
     }
 
@@ -39,7 +39,7 @@ class ProductObserver
             $product->id,
             'updated',
             auth()->id(),
-            ['before' => $before, 'after' => $changes],
+            ['before' => self::normalizeMoney($before), 'after' => self::normalizeMoney($changes)],
         );
     }
 
@@ -51,7 +51,24 @@ class ProductObserver
             null,
             'deleted',
             auth()->id(),
-            ['snapshot' => $product->getAttributes()],
+            ['snapshot' => self::normalizeMoney($product->getAttributes())],
         );
+    }
+
+    /**
+     * Dinheiro sai sempre string com 2 casas ("49.90") — mesma convenção da
+     * API (BDR-003). getAttributes()/getChanges() devolvem o float cru do
+     * input (ex.: 49.9), que o json_encode pode expandir para ruído binário.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private static function normalizeMoney(array $data): array
+    {
+        if (array_key_exists('price', $data) && $data['price'] !== null) {
+            $data['price'] = number_format((float) $data['price'], 2, '.', '');
+        }
+
+        return $data;
     }
 }
