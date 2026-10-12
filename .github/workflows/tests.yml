@@ -33,7 +33,8 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          # Lock tem symfony/* v8.1 (exige PHP >= 8.4.1); Sail local roda 8.5.
+          php-version: '8.4'
           extensions: ctype, curl, dom, fileinfo, mbstring, openssl, pcntl, pdo, pdo_mysql, tokenizer, xml, zip
           coverage: none
 
