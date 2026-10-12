@@ -26,3 +26,4 @@ Regra: BDR aplicada **não se edita** — mudança de ideia gera BDR nova que a 
 | 012 | Elasticsearch (condicional) | [PROPOSTO] P3 |
 | 013 | CI no push | [APLICADO] P1 |
 | 014 | Sem Resources/scopes/refresh/cursor | [APLICADO] |
+| 015 | Importar por URL explícita + filtro de modelagem (estende 009) | [APLICADO] P1 |

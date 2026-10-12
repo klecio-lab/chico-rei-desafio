@@ -13,7 +13,14 @@ class ChicoReiFetcher implements ProductImportFetcherInterface
 {
     public function fetchTema(string $tema, ?int $limit = null): array
     {
-        $url = rtrim(config('import.base_url'), '/')."/camiseta/{$tema}/";
+        return $this->fetchUrl(rtrim(config('import.base_url'), '/')."/camiseta/{$tema}/", $limit);
+    }
+
+    public function fetchUrl(string $url, ?int $limit = null): array
+    {
+        if (! str_starts_with($url, 'http://') && ! str_starts_with($url, 'https://')) {
+            $url = rtrim(config('import.base_url'), '/').'/'.ltrim($url, '/');
+        }
 
         $response = Http::withUserAgent(config('import.user_agent'))
             ->timeout(config('import.timeout_seconds'))

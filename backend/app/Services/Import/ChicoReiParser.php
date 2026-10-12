@@ -9,7 +9,7 @@ namespace App\Services\Import;
 class ChicoReiParser
 {
     /**
-     * @return array<int, array{name: string, price: float, image: ?string, source_url: string}>
+     * @return array<int, array{name: string, price: float, image: ?string, source_url: string, models: array<int, array{url: string, gender: string}>}>
      */
     public static function parseListing(string $html, string $baseUrl): array
     {
@@ -88,7 +88,7 @@ class ChicoReiParser
     }
 
     /**
-     * @return array{name: string, price: float, image: ?string, source_url: string}|null
+     * @return array{name: string, price: float, image: ?string, source_url: string, models: array<int, array{url: string, gender: string}>}|null
      */
     private static function normalizeItem(mixed $raw, string $baseUrl): ?array
     {
@@ -109,7 +109,35 @@ class ChicoReiParser
             'price' => round((float) $raw['price'], 2),
             'image' => self::pickImage($raw, $baseUrl),
             'source_url' => self::absoluteUrl($link, $baseUrl),
+            'models' => self::normalizeModels($raw['models'] ?? []),
         ];
+    }
+
+    /**
+     * @return array<int, array{url: string, gender: string}>
+     */
+    private static function normalizeModels(mixed $raw): array
+    {
+        if (! is_array($raw)) {
+            return [];
+        }
+
+        $models = [];
+
+        foreach ($raw as $model) {
+            if (! is_array($model)) {
+                continue;
+            }
+
+            $url = $model['url'] ?? '';
+            $gender = $model['gender'] ?? '';
+
+            if (is_string($url) && $url !== '' && is_string($gender) && $gender !== '') {
+                $models[] = ['url' => $url, 'gender' => $gender];
+            }
+        }
+
+        return $models;
     }
 
     /**

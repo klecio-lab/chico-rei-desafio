@@ -47,4 +47,15 @@ class ChicoReiParserTest extends TestCase
     {
         $this->assertSame([], ChicoReiParser::parseListing('<html><body>nada</body></html>', 'https://chicorei.com'));
     }
+
+    public function test_extrai_models_de_cada_item(): void
+    {
+        $items = ChicoReiParser::parseListing($this->fixture(), 'https://chicorei.com');
+
+        $this->assertSame(
+            [['url' => 'regular', 'gender' => 'M'], ['url' => 'babylook', 'gender' => 'F']],
+            $items[0]['models']
+        );
+        $this->assertSame([['url' => 'regular', 'gender' => 'M']], $items[1]['models']);
+    }
 }

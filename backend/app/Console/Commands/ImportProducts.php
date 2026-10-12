@@ -10,6 +10,9 @@ class ImportProducts extends Command
 {
     protected $signature = 'products:import
         {--tema= : Tema da listagem (ex.: geek). Default em config/import.php}
+        {--url= : URL de listagem explícita (ex.: /camiseta/). Ignora --tema}
+        {--modelo= : Filtra por modelagem (ex.: babylook) ou gênero (M/F/U)}
+        {--categoria= : Categoria gravada. Default: --tema}
         {--limit= : Máximo de produtos. Default em config/import.php}
         {--dry-run : Só mostra o que faria, sem persistir}';
 
@@ -26,17 +29,34 @@ class ImportProducts extends Command
         $tema = $this->option('tema') ?: config('import.default_tema');
         $limit = $this->option('limit') !== null ? (int) $this->option('limit') : null;
         $dryRun = (bool) $this->option('dry-run');
+        $url = $this->option('url');
+        $modelo = $this->option('modelo');
+        $categoria = $this->option('categoria') ?: $tema;
 
-        $items = array_slice($fetcher->fetchTema($tema, $limit), 0, $limit ?? config('import.default_limit'));
+        $items = $url
+            ? $fetcher->fetchUrl($url, $limit)
+            : $fetcher->fetchTema($tema, $limit);
+
+        if (is_string($modelo) && $modelo !== '') {
+            $items = array_values(array_filter(
+                $items,
+                fn (array $item): bool => collect($item['models'] ?? [])
+                    ->contains(fn (array $model): bool => $this->modelMatches($model, $modelo))
+            ));
+        }
+
+        $items = array_slice($items, 0, $limit ?? config('import.default_limit'));
+
+        $origem = $url ? "[{$url}]" : "tema [{$tema}]";
 
         if ($items === []) {
-            $this->warn("Nenhum produto encontrado para o tema [{$tema}].");
+            $this->warn("Nenhum produto encontrado em {$origem}.");
 
             return self::SUCCESS;
         }
 
         if ($dryRun) {
-            $this->info('[dry-run] '.count($items)." produto(s) do tema [{$tema}] — nada persistido.");
+            $this->info('[dry-run] '.count($items)." produto(s) de {$origem} — nada persistido.");
 
             foreach ($items as $item) {
                 $this->line("  - {$item['name']} | R$ ".number_format($item['price'], 2, ',', '.')." | {$item['source_url']}");
@@ -52,7 +72,7 @@ class ImportProducts extends Command
                 'description' => null,
                 'image' => $item['image'],
                 'price' => $item['price'],
-                'category' => $tema,
+                'category' => $categoria,
                 'stock' => config('import.default_stock'),
                 'source_url' => $item['source_url'],
             ], $items),
@@ -60,8 +80,17 @@ class ImportProducts extends Command
             update: ['price', 'image'],
         );
 
-        $this->info(count($items)." produto(s) do tema [{$tema}] importados (upsert por source_url).");
+        $this->info(count($items)." produto(s) de {$origem} importados (upsert por source_url).");
 
         return self::SUCCESS;
+    }
+
+    /**
+     * @param  array{url: string, gender: string}  $model
+     */
+    private function modelMatches(array $model, string $modelo): bool
+    {
+        return strcasecmp($model['url'], $modelo) === 0
+            || strcasecmp($model['gender'], $modelo) === 0;
     }
 }

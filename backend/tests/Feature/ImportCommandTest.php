@@ -92,4 +92,33 @@ class ImportCommandTest extends TestCase
         $this->assertSame(0, Product::count());
         Http::assertNothingSent();
     }
+
+    public function test_modelo_filtra_por_genero(): void
+    {
+        $this->fakeCatalog();
+
+        $this->artisan('products:import', ['--tema' => 'geek', '--modelo' => 'F'])
+            ->assertSuccessful();
+
+        $this->assertSame(1, Product::whereNotNull('source_url')->count());
+        $this->assertSame(
+            'https://chicorei.com/camiseta/fixture-alfa-101.html',
+            Product::sole()->source_url
+        );
+    }
+
+    public function test_url_explicita_ignora_tema_e_categoria_sobrescreve(): void
+    {
+        $this->fakeCatalog();
+
+        $this->artisan('products:import', [
+            '--tema' => 'geek',
+            '--url' => '/camiseta/',
+            '--categoria' => 'camisetas',
+        ])->assertSuccessful();
+
+        $this->assertSame(2, Product::whereNotNull('source_url')->count());
+        $this->assertSame(0, Product::where('category', 'geek')->count());
+        $this->assertSame(2, Product::where('category', 'camisetas')->count());
+    }
 }
