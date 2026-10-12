@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Models\Product;
 use App\Observers\ProductObserver;
+use App\Services\Import\ChicoReiFetcher;
+use App\Services\Import\ProductImportFetcherInterface;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -17,7 +19,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Trocar de provedor = implementar a interface + trocar config (BDR-009).
+        $this->app->bind(
+            ProductImportFetcherInterface::class,
+            ChicoReiFetcher::class,
+        );
     }
 
     /**

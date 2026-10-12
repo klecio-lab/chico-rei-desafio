@@ -1,5 +1,7 @@
 # chico-rei-desafio
 
+[![tests](https://github.com/klecio-lab/chico-rei-desafio/actions/workflows/tests.yml/badge.svg)](https://github.com/klecio-lab/chico-rei-desafio/actions/workflows/tests.yml)
+
 Desafio técnico Full-Stack (CHICO REI) — API em Laravel + SPA em Vue.js que a consome, do login ao CRUD de produtos com logs assíncronos.
 
 ## Estrutura
@@ -55,6 +57,17 @@ npm run dev                                # http://localhost:5174
 
 Login demo: `demo@chicorei.test` / `password`. Banco de teste (`testing`) é
 criado automaticamente pelo Sail; detalhes em `backend/docs/tecnica/ambiente.md`.
+
+```bash
+# Importação do catálogo real (diferencial, BDR-009 — a partir de backend/)
+./vendor/bin/sail artisan products:import --tema=geek --limit=20  # upsert por source_url
+./vendor/bin/sail artisan products:import --tema=geek --dry-run   # só mostra, sem persistir
+```
+
+Regra: cada execução lê a listagem do tema no site (1 request, throttle 1 req/s)
+e faz `upsert` pelo link do detalhe (`source_url` unique) — rodar 2× não duplica;
+reimportação atualiza só `price`/`image` (nunca `stock`/`category`, que são gestão
+local); `--dry-run` não persiste; `IMPORT_ENABLED=false` desliga.
 
 ## 4. Funcionalidades (API)
 
