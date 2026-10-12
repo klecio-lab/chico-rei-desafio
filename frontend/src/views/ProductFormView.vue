@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
 import { getProduct, createProduct, updateProduct, CATEGORIES, normalizeDecimal } from '../lib/products'
 import AppButton from '../components/AppButton.vue'
@@ -16,6 +16,47 @@ const notFound = ref(false)
 const loading = ref(false)
 const fieldErrors = ref({})
 const generalError = ref('')
+
+// Upload (BDR-010): arquivo vai em `image_file` (multipart); se vier junto
+// com a URL, o file vence no servidor — o front só mostra o aviso.
+const MAX_FILE_BYTES = 2 * 1024 * 1024
+const file = ref(null)
+const previewUrl = ref('')
+const fileInput = ref(null)
+
+function revokePreview() {
+  if (previewUrl.value) URL.revokeObjectURL(previewUrl.value)
+  previewUrl.value = ''
+}
+
+function onFileChange(event) {
+  const picked = event.target.files?.[0] ?? null
+  revokePreview()
+  file.value = null
+  delete fieldErrors.value.image_file
+  if (!picked) return
+  if (!picked.type.startsWith('image/')) {
+    fieldErrors.value = { ...fieldErrors.value, image_file: ['O arquivo precisa ser uma imagem.'] }
+    event.target.value = ''
+    return
+  }
+  if (picked.size > MAX_FILE_BYTES) {
+    fieldErrors.value = { ...fieldErrors.value, image_file: ['A imagem deve ter no máximo 2 MB.'] }
+    event.target.value = ''
+    return
+  }
+  file.value = picked
+  previewUrl.value = URL.createObjectURL(picked)
+}
+
+function clearFile() {
+  file.value = null
+  revokePreview()
+  delete fieldErrors.value.image_file
+  if (fileInput.value) fileInput.value.value = ''
+}
+
+onUnmounted(revokePreview)
 
 const form = ref({
   name: '',
@@ -59,6 +100,7 @@ function buildPayload() {
     category: form.value.category.trim(),
     description: form.value.description.trim() || null,
     image: form.value.image.trim() || null,
+    image_file: file.value,
     price: form.value.price === '' ? '' : Number(form.value.price),
     stock: form.value.stock === '' ? '' : Number(form.value.stock),
   }
@@ -211,6 +253,44 @@ async function onSubmit() {
             :class="inputClass"
           />
           <FieldError :messages="fieldErrors.image ?? []" error-id="image-error" />
+        </div>
+
+        <div>
+          <label for="image_file" class="mb-1 block text-sm font-bold">Arquivo de imagem <span class="font-normal text-ink-soft">(opcional, até 2 MB)</span></label>
+          <input
+            id="image_file"
+            ref="fileInput"
+            type="file"
+            name="image_file"
+            accept="image/*"
+            @change="onFileChange"
+            :aria-invalid="Boolean(fieldErrors.image_file?.length)"
+            :aria-describedby="fieldErrors.image_file?.length ? 'image-file-error' : undefined"
+            class="w-full rounded-lg border-2 border-ink bg-paper px-3 py-2 text-base file:mr-3 file:rounded-md file:border-2 file:border-ink file:bg-cream file:px-3 file:py-1 file:text-sm file:font-bold focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-flame"
+          />
+          <p class="mt-1 text-sm text-ink-soft">Vale em vez da URL quando os dois vierem juntos.</p>
+          <FieldError :messages="fieldErrors.image_file ?? []" error-id="image-file-error" />
+          <div v-if="previewUrl || (!file && form.image)" class="mt-3 flex items-center gap-3">
+            <img
+              :src="previewUrl || form.image"
+              :alt="file ? `Pré-visualização de ${file.name}` : 'Imagem atual do produto'"
+              width="96"
+              height="96"
+              class="size-24 rounded-lg border-2 border-ink object-cover"
+            />
+            <div class="min-w-0 text-sm">
+              <p class="font-bold">{{ file ? 'Nova imagem' : 'Imagem atual' }}</p>
+              <p class="truncate text-ink-soft">{{ file ? file.name : form.image }}</p>
+              <button
+                v-if="file"
+                type="button"
+                @click="clearFile"
+                class="mt-1 font-semibold text-blood hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-flame"
+              >
+                Remover arquivo
+              </button>
+            </div>
+          </div>
         </div>
 
         <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">

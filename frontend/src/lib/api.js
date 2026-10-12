@@ -19,7 +19,10 @@ export function clearSession() {
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+  // Sem Content-Type global: o axios assina application/json sozinho para
+  // objetos e deixa o browser assinar multipart/form-data (com boundary) no
+  // upload de arquivos (BDR-010).
+  headers: { Accept: 'application/json' },
   timeout: 15000,
 })
 

@@ -48,13 +48,26 @@ export async function getProduct(id) {
 
 // Escrita (exige Bearer — ver handoff fatia 3 back).
 // POST/PUT recebem o objeto completo; PUT é atualização total.
+// Com arquivo: multipart (só chaves preenchidas + image_file; o file vence a
+// URL no servidor — BDR-010). Sem arquivo: JSON com o objeto completo.
+export function toProductBody(payload) {
+  const { image_file, ...rest } = payload
+  if (!(image_file instanceof File)) return rest
+  const form = new FormData()
+  for (const [key, value] of Object.entries(rest)) {
+    if (value !== null && value !== undefined) form.append(key, value)
+  }
+  form.append('image_file', image_file)
+  return form
+}
+
 export async function createProduct(payload) {
-  const { data } = await api.post('/api/products', payload)
+  const { data } = await api.post('/api/products', toProductBody(payload))
   return data.data
 }
 
 export async function updateProduct(id, payload) {
-  const { data } = await api.put(`/api/products/${id}`, payload)
+  const { data } = await api.put(`/api/products/${id}`, toProductBody(payload))
   return data.data
 }
 
