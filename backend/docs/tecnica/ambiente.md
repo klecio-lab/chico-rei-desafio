@@ -13,6 +13,7 @@ Pré-requisitos: Docker + portas livres. O projeto usa portas não-padrão (BDR-
 ```bash
 ./vendor/bin/sail up -d
 ./vendor/bin/sail artisan migrate --seed        # tabelas + ~20 produtos + usuário demo
+./vendor/bin/sail artisan storage:link          # /storage/* para uploads (BDR-010)
 ./vendor/bin/sail artisan passport:keys         # chaves NÃO vão ao git (1ª vez na máquina)
 ./vendor/bin/sail artisan passport:client --personal --provider=users --name=chico-rei-app
 ./vendor/bin/sail artisan test                  # suite verde

@@ -39,6 +39,6 @@ Legenda: `[x]` feito · `[ ]` pendente. Atualize conforme entrega.
 - [x] Logs em job assíncrono (BDR-005; worker: `sail artisan queue:work`)
 - [x] Testes automatizados (padrão Fiscali, `§9` do AGENTS.md)
 - [x] Importação externa — `products:import` (BDR-009, sucede BDR-007)
-- [ ] Sentry — planejado: BDR-011 (P2)
+- [x] Sentry (BDR-011; DSN vazio = inativo)
 - [ ] Elasticsearch — condicional: BDR-012 (P3, só se 009/010/011 verdes até seg)
 - [x] CI no push (BDR-013; fora do edital, protege a nota)

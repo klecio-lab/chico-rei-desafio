@@ -21,8 +21,8 @@ Regra: BDR aplicada **não se edita** — mudança de ideia gera BDR nova que a 
 | 007 | Sem importação externa/scraping | [SUCEDIDA por BDR-009] |
 | 008 | Monorepo `backend/` + `frontend/` | [APLICADO] |
 | 009 | Importação via scraping (sucede 007) | [APLICADO] P1 |
-| 010 | Upload real de imagem | [PROPOSTO] P2 |
-| 011 | Sentry (back) | [PROPOSTO] P2 |
+| 010 | Upload real de imagem | [APLICADO] P2 |
+| 011 | Sentry (back) | [APLICADO] P2 |
 | 012 | Elasticsearch (condicional) | [PROPOSTO] P3 |
 | 013 | CI no push | [APLICADO] P1 |
 | 014 | Sem Resources/scopes/refresh/cursor | [APLICADO] |
