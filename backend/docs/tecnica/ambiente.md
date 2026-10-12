@@ -27,6 +27,19 @@ worker dedicado; em dev/teste:
 ./vendor/bin/sail artisan queue:work            # processa LogProductActivity
 ```
 
+## Busca ES (opcional, BDR-012)
+
+Desligada por padrão (`ELASTIC_ENABLED=false`). Para ligar em dev:
+
+```bash
+./vendor/bin/sail up -d elasticsearch           # sobe o serviço (8.18, 512 MB)
+# ELASTIC_ENABLED=true no .env
+./vendor/bin/sail artisan products:reindex      # indexa o catálogo
+```
+
+O `q` passa a usar full-text com fallback para `LIKE`; CUD sincroniza o índice
+(best-effort, nunca quebra a escrita). CI e máquina limpa não usam ES.
+
 
 - Demo: `demo@chicorei.test` / `password` (ver `tecnica/banco-de-dados.md`).
 - DB de teste: criar `testing` uma vez (ver `tecnica/testes.md`).

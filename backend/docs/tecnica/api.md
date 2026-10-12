@@ -29,7 +29,8 @@ Rate limit: `login` 10/min por IP; CUD 30/min por usuário; leitura 120/min por 
 
 Notas do catálogo: `price` serializa **string** (decimal do MySQL) — o front aplica
 `Number()`; `sort` aceita `name|price|stock|created_at` com prefixo `-` (default
-`-created_at`); `per_page` default 15 (1–100); `in_stock=false` = zerados.
+`-created_at`); `per_page` default 15 (1–100); `in_stock=false` = zerados. Com `ELASTIC_ENABLED=true`, o `q` usa full-text
+(stemming PT + typo) com fallback automático para `LIKE` — contrato idêntico.
 
 Corpo de escrita (`POST`/`PUT` total): `name` (obrigatório, min 3), `price`
 (obrigatório, ≥ 0), `category` (obrigatória), `stock` (obrigatório, inteiro ≥ 0),

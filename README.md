@@ -97,6 +97,7 @@ erros em PT-BR (`422` validação, `401` sem token, `404` inexistente).
 | FormRequest em tudo | exigência do edital | 1 classe por operação |
 | `image` como URL, sem upload | prazo de 3 dias | upload real fica para depois |
 | Logs via Observer + Job async | mata o obrigatório + o diferencial de uma vez | worker necessário em dev |
+| Busca ES opt-in com fallback LIKE | stemming PT + typo sem quebrar a busca atual | serviço extra (~512 MB), desligado por padrão |
 | Sem importação/scraping | diferencial, não obrigatório; prioriza nota | seeders com dados próprios |
 | Monorepo `backend/` + `frontend/` | 1 link, 1 clone, 1 README | chats de IA separados por pasta |
 

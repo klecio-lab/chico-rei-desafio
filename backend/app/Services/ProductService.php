@@ -3,13 +3,18 @@
 namespace App\Services;
 
 use App\Models\Product;
+use App\Services\Search\ElasticProductSearch;
+use App\Services\Search\ProductSearchInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class ProductService
 {
+    public function __construct(private readonly ProductSearchInterface $search) {}
+
     /**
      * Listagem pública com filtros + ordenação + paginação.
      *
@@ -20,8 +25,25 @@ class ProductService
         $query = Product::query();
 
         if (! empty($filters['q'])) {
-            // Collation padrão do MySQL (utf8mb4_unicode_ci) => LIKE case-insensitive.
-            $query->where('name', 'like', '%'.$filters['q'].'%');
+            $ids = $this->searchIds($filters['q']);
+
+            if ($ids !== null) {
+                if ($ids === []) {
+                    $query->whereRaw('0 = 1');
+                } else {
+                    $query->whereIn('id', $ids);
+
+                    // FIELD() preserva a ordem de relevância do ES — salvo
+                    // sort explícito, que mantém precedência do usuário.
+                    if (! isset($filters['sort'])) {
+                        $query->orderByRaw('FIELD(id, '.implode(',', array_map(intval(...), $ids)).')');
+                    }
+                }
+            } else {
+                // Fallback obrigatório: LIKE com índice (BDR-012).
+                // Collation padrão do MySQL (utf8mb4_unicode_ci) => case-insensitive.
+                $query->where('name', 'like', '%'.$filters['q'].'%');
+            }
         }
 
         if (! empty($filters['category'])) {
@@ -54,11 +76,39 @@ class ProductService
     }
 
     /**
+     * IDs via ES quando habilitado; null = usar LIKE (desligado ou falha).
+     *
+     * @return array<int>|null
+     */
+    private function searchIds(string $query): ?array
+    {
+        if (! config('search.elastic_enabled')) {
+            return null;
+        }
+
+        try {
+            return $this->search->searchIds($query);
+        } catch (\Throwable $e) {
+            Log::warning('Busca ES falhou; fallback para LIKE.', [
+                'error' => mb_substr($e->getMessage(), 0, 500),
+            ]);
+
+            return null;
+        }
+    }
+
+    /**
+     * Sincroniza o índice no CUD — best-effort fora da transaction:
+     * nunca quebra a escrita.
+     *
      * @param  array<string, mixed>  $data  Dado já validado do StoreProductRequest.
      */
     public function create(array $data): Product
     {
-        return DB::transaction(fn () => Product::create($this->withUpload($data)));
+        $product = DB::transaction(fn () => Product::create($this->withUpload($data)));
+        $this->syncIndex($product);
+
+        return $product;
     }
 
     /**
@@ -66,22 +116,64 @@ class ProductService
      */
     public function update(Product $product, array $data): Product
     {
-        return DB::transaction(function () use ($product, $data): Product {
+        $product = DB::transaction(function () use ($product, $data): Product {
             $oldImage = $product->image;
             $product->update($this->withUpload($data));
             $this->deleteUpload($oldImage, $product->image);
 
             return $product->refresh();
         });
+        $this->syncIndex($product);
+
+        return $product;
     }
 
     public function delete(Product $product): void
     {
+        $id = $product->id;
+
         DB::transaction(function () use ($product): void {
             $image = $product->image;
             $product->delete();
             $this->deleteUpload($image, null);
         });
+        $this->removeFromIndex($id);
+    }
+
+    private function syncIndex(Product $product): void
+    {
+        if (! config('search.elastic_enabled')) {
+            return;
+        }
+
+        try {
+            app(ElasticProductSearch::class)->indexOne($product->id, [
+                'name' => $product->name,
+                'description' => $product->description,
+                'category' => $product->category,
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('Indexação ES falhou; escrita preservada.', [
+                'product_id' => $product->id,
+                'error' => mb_substr($e->getMessage(), 0, 500),
+            ]);
+        }
+    }
+
+    private function removeFromIndex(int $id): void
+    {
+        if (! config('search.elastic_enabled')) {
+            return;
+        }
+
+        try {
+            app(ElasticProductSearch::class)->deleteOne($id);
+        } catch (\Throwable $e) {
+            Log::warning('Remoção do índice ES falhou; exclusão preservada.', [
+                'product_id' => $id,
+                'error' => mb_substr($e->getMessage(), 0, 500),
+            ]);
+        }
     }
 
     /**

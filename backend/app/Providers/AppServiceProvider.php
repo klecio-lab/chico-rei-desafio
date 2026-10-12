@@ -6,6 +6,8 @@ use App\Models\Product;
 use App\Observers\ProductObserver;
 use App\Services\Import\ChicoReiFetcher;
 use App\Services\Import\ProductImportFetcherInterface;
+use App\Services\Search\ElasticProductSearch;
+use App\Services\Search\ProductSearchInterface;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -23,6 +25,12 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             ProductImportFetcherInterface::class,
             ChicoReiFetcher::class,
+        );
+
+        // Busca full-text com fallback LIKE; desligada por padrão (BDR-012).
+        $this->app->bind(
+            ProductSearchInterface::class,
+            ElasticProductSearch::class,
         );
     }
 

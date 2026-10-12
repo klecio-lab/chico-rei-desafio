@@ -47,9 +47,30 @@ services:
                 - '-p${DB_PASSWORD}'
             retries: 3
             timeout: 5s
+    elasticsearch:
+        # Spike BDR-012: busca full-text com fallback para LIKE (sempre).
+        # Desligado por padrão (ELASTIC_ENABLED=false) — máquina limpa e CI
+        # nem notam que ele existe; só consome RAM quando habilitado.
+        image: 'docker.elastic.co/elasticsearch/elasticsearch:8.18.0'
+        environment:
+            discovery.type: single-node
+            xpack.security.enabled: 'false'
+            ES_JAVA_OPTS: '-Xms512m -Xmx512m'
+        volumes:
+            - 'sail-elasticsearch:/usr/share/elasticsearch/data'
+        networks:
+            - sail
+        healthcheck:
+            test:
+                - CMD-SHELL
+                - 'curl -sf http://localhost:9200/_cluster/health || exit 1'
+            retries: 5
+            timeout: 10s
 networks:
     sail:
         driver: bridge
 volumes:
     sail-mysql:
+        driver: local
+    sail-elasticsearch:
         driver: local

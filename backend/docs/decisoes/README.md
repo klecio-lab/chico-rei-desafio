@@ -23,7 +23,7 @@ Regra: BDR aplicada **não se edita** — mudança de ideia gera BDR nova que a 
 | 009 | Importação via scraping (sucede 007) | [APLICADO] P1 |
 | 010 | Upload real de imagem | [APLICADO] P2 |
 | 011 | Sentry (back) | [APLICADO] P2 |
-| 012 | Elasticsearch (condicional) | [PROPOSTO] P3 |
+| 012 | Elasticsearch (condicional) | [APLICADO] P3 |
 | 013 | CI no push | [APLICADO] P1 |
 | 014 | Sem Resources/scopes/refresh/cursor | [APLICADO] |
 | 015 | Importar por URL explícita + filtro de modelagem (estende 009) | [APLICADO] P1 |

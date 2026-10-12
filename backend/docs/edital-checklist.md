@@ -40,5 +40,5 @@ Legenda: `[x]` feito · `[ ]` pendente. Atualize conforme entrega.
 - [x] Testes automatizados (padrão Fiscali, `§9` do AGENTS.md)
 - [x] Importação externa — `products:import` (BDR-009, sucede BDR-007)
 - [x] Sentry (BDR-011; DSN vazio = inativo)
-- [ ] Elasticsearch — condicional: BDR-012 (P3, só se 009/010/011 verdes até seg)
+- [x] Elasticsearch (BDR-012; opt-in, fallback LIKE obrigatório)
 - [x] CI no push (BDR-013; fora do edital, protege a nota)

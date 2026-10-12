@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -289,5 +290,43 @@ class ProductTest extends TestCase
         $this->assertNotSame($firstImage, $secondImage);
         Storage::disk('public')->assertExists('products/'.basename($secondImage));
         Storage::disk('public')->assertMissing('products/'.basename($firstImage));
+    }
+
+    public function test_busca_com_es_fora_do_ar_cai_para_like(): void
+    {
+        Product::factory()->create(['name' => 'Camiseta Galáxia']);
+        Product::factory()->create(['name' => 'Caneca Térmica']);
+
+        // Habilitado mas inalcançável: fallback obrigatório (BDR-012).
+        Config::set('search.elastic_enabled', true);
+        Config::set('search.elastic_host', 'http://127.0.0.1:9');
+
+        $this->getJson('/api/products?q=galaxia')
+            ->assertStatus(200)
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('data.0.name', 'Camiseta Galáxia');
+    }
+
+    public function test_escrita_com_es_fora_do_ar_nao_quebra(): void
+    {
+        Config::set('search.elastic_enabled', true);
+        Config::set('search.elastic_host', 'http://127.0.0.1:9');
+        $this->authUser();
+
+        $id = $this->postJson('/api/products', [
+            'name' => 'Camiseta ES Off',
+            'price' => 10,
+            'category' => 'camisetas',
+            'stock' => 1,
+        ])->assertStatus(201)->json('data.id');
+
+        $this->putJson("/api/products/{$id}", [
+            'name' => 'Camiseta ES Off',
+            'price' => 20,
+            'category' => 'camisetas',
+            'stock' => 1,
+        ])->assertStatus(200);
+
+        $this->deleteJson("/api/products/{$id}")->assertStatus(204);
     }
 }
