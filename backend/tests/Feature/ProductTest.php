@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ProductTest extends TestCase
@@ -202,5 +204,90 @@ class ProductTest extends TestCase
 
         $this->putJson('/api/products/999999', $payload)->assertStatus(404);
         $this->deleteJson('/api/products/999999')->assertStatus(404);
+    }
+
+    public function test_store_com_image_file_salva_no_disco_public(): void
+    {
+        Storage::fake('public');
+        $this->authUser();
+
+        // post() com UploadedFile => multipart; Accept garante erros em JSON.
+        $id = $this->post('/api/products', [
+            'name' => 'Camiseta Com Upload',
+            'price' => 59.90,
+            'category' => 'camisetas',
+            'stock' => 10,
+            'image_file' => UploadedFile::fake()->image('foto.jpg'),
+        ], ['Accept' => 'application/json'])->assertStatus(201)->json('data.id');
+
+        $product = Product::findOrFail($id);
+        $prefix = config('app.url').'/storage/products/';
+
+        $this->assertStringStartsWith($prefix, $product->image);
+        Storage::disk('public')->assertExists('products/'.basename($product->image));
+    }
+
+    public function test_store_com_url_e_file_juntos_file_vence(): void
+    {
+        Storage::fake('public');
+        $this->authUser();
+
+        $id = $this->post('/api/products', [
+            'name' => 'Camiseta File Vence',
+            'price' => 59.90,
+            'category' => 'camisetas',
+            'stock' => 10,
+            'image' => 'https://placehold.co/600x600?text=url',
+            'image_file' => UploadedFile::fake()->image('foto.jpg'),
+        ], ['Accept' => 'application/json'])->assertStatus(201)->json('data.id');
+
+        $this->assertStringStartsWith(config('app.url').'/storage/products/', Product::findOrFail($id)->image);
+    }
+
+    public function test_store_com_arquivo_invalido_retorna_422(): void
+    {
+        Storage::fake('public');
+        $this->authUser();
+
+        $this->post('/api/products', [
+            'name' => 'Camiseta Arquivo Ruim',
+            'price' => 59.90,
+            'category' => 'camisetas',
+            'stock' => 10,
+            'image_file' => UploadedFile::fake()->create('doc.txt', 100, 'text/plain'),
+        ], ['Accept' => 'application/json'])->assertStatus(422)->assertJsonValidationErrors(['image_file']);
+    }
+
+    public function test_update_com_novo_file_substitui_e_apaga_antigo(): void
+    {
+        Storage::fake('public');
+        $this->authUser();
+
+        $product = Product::factory()->create(['image' => 'https://placehold.co/600x600?text=url']);
+
+        $this->put("/api/products/{$product->id}", [
+            'name' => $product->name,
+            'price' => 10,
+            'category' => $product->category,
+            'stock' => 1,
+            'image_file' => UploadedFile::fake()->image('nova.jpg'),
+        ], ['Accept' => 'application/json'])->assertStatus(200);
+
+        $firstImage = Product::findOrFail($product->id)->image;
+        $this->assertStringStartsWith(config('app.url').'/storage/products/', $firstImage);
+
+        $this->put("/api/products/{$product->id}", [
+            'name' => $product->name,
+            'price' => 10,
+            'category' => $product->category,
+            'stock' => 1,
+            'image_file' => UploadedFile::fake()->image('outra.jpg'),
+        ], ['Accept' => 'application/json'])->assertStatus(200);
+
+        $secondImage = Product::findOrFail($product->id)->image;
+
+        $this->assertNotSame($firstImage, $secondImage);
+        Storage::disk('public')->assertExists('products/'.basename($secondImage));
+        Storage::disk('public')->assertMissing('products/'.basename($firstImage));
     }
 }

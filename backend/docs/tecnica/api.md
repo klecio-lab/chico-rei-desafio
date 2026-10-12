@@ -35,3 +35,8 @@ Corpo de escrita (`POST`/`PUT` total): `name` (obrigatório, min 3), `price`
 (obrigatório, ≥ 0), `category` (obrigatória), `stock` (obrigatório, inteiro ≥ 0),
 `description` (opcional), `image` (opcional, URL ≤ 2048). Falha → `422` com
 `errors.*` em PT-BR por campo.
+
+Upload (BDR-010): `POST`/`PUT` aceitam `multipart/form-data` com `image_file`
+(imagem ≤ 2 MB) **no lugar de** `image`; se ambos vierem, o file vence e a coluna
+guarda a URL pública absoluta (`{APP_URL}/storage/products/xxx.jpg`). Requer
+`storage:link` no servidor (ver `tecnica/ambiente.md`).

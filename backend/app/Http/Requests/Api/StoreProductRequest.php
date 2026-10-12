@@ -21,6 +21,8 @@ class StoreProductRequest extends FormRequest
             'name' => ['required', 'string', 'min:3', 'max:255'],
             'description' => ['nullable', 'string'],
             'image' => ['nullable', 'string', 'url', 'max:2048'],
+            // Upload real (BDR-010): multipart com image_file OU image URL; ambos => file vence.
+            'image_file' => ['nullable', 'file', 'image', 'max:2048'],
             'price' => ['required', 'numeric', 'min:0'],
             'category' => ['required', 'string', 'max:100'],
             'stock' => ['required', 'integer', 'min:0'],
@@ -41,6 +43,9 @@ class StoreProductRequest extends FormRequest
             'image.string' => 'A imagem deve ser um texto.',
             'image.url' => 'A imagem deve ser uma URL válida.',
             'image.max' => 'A imagem deve ter no máximo :max caracteres.',
+            'image_file.file' => 'O arquivo de imagem é inválido.',
+            'image_file.image' => 'O arquivo deve ser uma imagem.',
+            'image_file.max' => 'A imagem deve ter no máximo :max KB.',
             'price.required' => 'O preço é obrigatório.',
             'price.numeric' => 'O preço deve ser um número.',
             'price.min' => 'O preço não pode ser negativo.',
